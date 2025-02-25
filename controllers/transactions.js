@@ -35,7 +35,7 @@ exports.addTransaction = async (req, res, next) => {
         }) 
     } catch (error) {
         if(error.name === 'ValidationError'){
-            const messages = Object.values(error.errors).map(erro => erro.message);
+            const messages = Object.values(error.errors).map(val => val.message);
 
             return res.status(400).json({
                 success: false,
@@ -56,5 +56,26 @@ exports.addTransaction = async (req, res, next) => {
 // @route   DELETE /api/v1/transactions/:id
 // @access  public
 exports.deleteTransaction = async (req, res, next) => {
-    res.send('DELETE transaction');
+    try {
+        const transaction = await Transaction.findById(req.params.id);
+
+        if(!transaction){
+            return res.status(404).json({
+                success: false,
+                error: 'No transaction found'
+            });
+        }
+
+        await transaction.deleteOne();
+
+        return res.status(200).json({
+            success: true,
+            data: {}
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            error: 'server error'
+        });
+    }
 }
