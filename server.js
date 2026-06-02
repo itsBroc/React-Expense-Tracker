@@ -9,6 +9,9 @@ dotenv.config({ path: './config/config.env'});
 connectDB();
 
 const transactions = require('./routes/transactions');
+const goals = require('./routes/goals');
+const budgets = require('./routes/budgets');
+const { protect } = require('./middleware/auth');
 
 const app = express();
 
@@ -18,7 +21,9 @@ if(process.env.NODE_ENV === 'development'){
     app.use(morgan('dev'));
 }
 
-app.use('/api/v1/transactions', transactions);
+app.use('/api/v1/transactions', protect, transactions);
+app.use('/api/v1/goals', protect, goals);
+app.use('/api/v1/budgets', protect, budgets);
 
 const PORT = process.env.PORT || 5000;
 

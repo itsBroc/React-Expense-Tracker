@@ -1,11 +1,12 @@
 const Transaction = require('../models/Transaction');
+const { getUserFilter, withUser } = require('../utils/userScope');
 
 // @desc    Get all transactions
 // @route   GET /api/v1/transactions
 // @access  public
 exports.getTransactions = async (req, res, next) => {
     try {
-        const transactions = await Transaction.find();
+        const transactions = await Transaction.find(getUserFilter(req)).sort({ createdAt: -1 });
 
         return res.status(200).json({
             success: true,
@@ -25,9 +26,7 @@ exports.getTransactions = async (req, res, next) => {
 // @access  public
 exports.addTransaction = async (req, res, next) => {
     try {
-        const { text, amount } = req.body;
-
-        const transaction = await Transaction.create(req.body);
+        const transaction = await Transaction.create(withUser(req, req.body));
     
         return res.status(201).json({
             success: true,
@@ -57,7 +56,10 @@ exports.addTransaction = async (req, res, next) => {
 // @access  public
 exports.deleteTransaction = async (req, res, next) => {
     try {
-        const transaction = await Transaction.findById(req.params.id);
+        const transaction = await Transaction.findOne({
+            _id: req.params.id,
+            ...getUserFilter(req)
+        });
 
         if(!transaction){
             return res.status(404).json({

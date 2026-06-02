@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const TransactionSchema = new mongoose.Schema({
+    userId: {
+        type: String,
+        index: true
+    },
     text: {
         type: String,
         trim: true,
@@ -9,6 +13,15 @@ const TransactionSchema = new mongoose.Schema({
     amount: {
         type: Number,
         required: [true, 'Please add a positive or negative number']
+    },
+    category: {
+        type: String,
+        trim: true,
+        default: 'Other spending'
+    },
+    notes: {
+        type: String,
+        trim: true
     },
     createdAt: {
         type: Date,
