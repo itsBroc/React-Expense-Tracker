@@ -1,29 +1,30 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 
 const pages = [
-  { id: 'home', label: 'Home' },
-  { id: 'dashboard', label: 'Dashboard' },
-  { id: 'budgets', label: 'Budgets' },
-  { id: 'goals', label: 'Goals' },
-  { id: 'account', label: 'Account' },
-  { id: 'cloud', label: 'Cloud plan' }
+  { path: '/', label: 'Home' },
+  { path: '/dashboard', label: 'Dashboard' },
+  { path: '/budgets', label: 'Budgets' },
+  { path: '/goals', label: 'Goals' },
+  { path: '/account', label: 'Account' },
+  { path: '/cloud', label: 'Cloud plan' }
 ];
 
-export const PageNav = ({ activePage, onChange }) => {
+export const PageNav = () => {
   return (
     <header className="site-header">
-      <button className="brand-mark" onClick={() => onChange('home')}>
+      <NavLink className="brand-mark" to="/">
         Expense Tracker
-      </button>
+      </NavLink>
       <nav className="page-tabs" aria-label="Application pages">
         {pages.map(page => (
-          <button
-            key={page.id}
-            className={activePage === page.id ? 'active' : ''}
-            onClick={() => onChange(page.id)}
+          <NavLink
+            key={page.path}
+            to={page.path}
+            end={page.path === '/'}
           >
             {page.label}
-          </button>
+          </NavLink>
         ))}
       </nav>
     </header>

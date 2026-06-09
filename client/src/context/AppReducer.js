@@ -16,6 +16,13 @@ const AppReducer = (state, action) => {
         ...state,
         budgets: action.payload
       }
+    case 'GET_USER_PROFILE':
+    case 'UPDATE_USER_PROFILE':
+      return {
+        ...state,
+        error: null,
+        userProfile: action.payload
+      }
     case 'DELETE_TRANSACTION':
       return {
         ...state,
@@ -67,6 +74,7 @@ const AppReducer = (state, action) => {
     case 'TRANSACTION_ERROR':
     case 'GOAL_ERROR':
     case 'BUDGET_ERROR':
+    case 'PROFILE_ERROR':
       return {
         ...state,
         error: action.payload

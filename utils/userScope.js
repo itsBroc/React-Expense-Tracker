@@ -11,7 +11,15 @@ exports.getUserFilter = req => {
     return { userId: req.user.id };
 };
 
+function stripOwnershipFields(body = {}) {
+    const { userId, _id, id, ...safeBody } = body;
+
+    return safeBody;
+}
+
 exports.withUser = (req, body) => ({
-    ...body,
+    ...stripOwnershipFields(body),
     userId: req.user.id
 });
+
+exports.stripOwnershipFields = stripOwnershipFields;

@@ -65,6 +65,7 @@ button {
   font-size: 20px;
   font-weight: 700;
   padding: 0;
+  text-decoration: none;
 }
 
 .page-tabs {
@@ -78,18 +79,21 @@ button {
   padding: 4px;
 }
 
-.page-tabs button,
+.page-tabs a,
 .segmented-control button {
   background: transparent;
   border: 0;
   border-radius: 6px;
   color: var(--muted);
+  display: inline-flex;
+  align-items: center;
   min-height: 36px;
   padding: 0 13px;
+  text-decoration: none;
   white-space: nowrap;
 }
 
-.page-tabs button.active,
+.page-tabs a.active,
 .segmented-control button.active {
   background: var(--surface-muted);
   color: var(--text);
@@ -648,6 +652,11 @@ input[type='search'] {
 .account-panel {
   display: grid;
   gap: 16px;
+}
+
+.settings-form {
+  display: grid;
+  gap: 14px;
 }
 
 .account-panel:first-child {

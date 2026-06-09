@@ -1,5 +1,6 @@
 import './App.css';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo } from 'react';
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { PageNav } from './components/PageNav';
 import { AccountPage } from './pages/AccountPage';
 import { BudgetsPage } from './pages/BudgetsPage';
@@ -12,12 +13,21 @@ import { GlobalContext, GlobalProvider } from './context/GlobalState';
 import { buildFinanceStats } from './utils/finance';
 
 const pageTitles = {
-  account: 'Account',
-  budgets: 'Budgets',
-  cloud: 'Cloud Plan',
-  dashboard: 'Dashboard',
-  goals: 'Goals',
-  home: 'Home'
+  '/': 'Home',
+  '/account': 'Account',
+  '/budgets': 'Budgets',
+  '/cloud': 'Cloud Plan',
+  '/dashboard': 'Dashboard',
+  '/goals': 'Goals'
+};
+
+const pagePaths = {
+  account: '/account',
+  budgets: '/budgets',
+  cloud: '/cloud',
+  dashboard: '/dashboard',
+  goals: '/goals',
+  home: '/'
 };
 
 function TrackerWorkspace() {
@@ -28,12 +38,15 @@ function TrackerWorkspace() {
     getTransactions,
     getGoals,
     getBudgets,
+    getUserProfile,
     loading,
     error
   } = useContext(GlobalContext);
   const { authReady, configured, isAuthenticated } = useAuth();
-  const [activePage, setActivePage] = useState('home');
+  const location = useLocation();
+  const navigate = useNavigate();
   const stats = useMemo(() => buildFinanceStats(transactions), [transactions]);
+  const mobileTitle = pageTitles[location.pathname] || 'Home';
 
   useEffect(() => {
     if (!authReady || (configured && !isAuthenticated)) {
@@ -43,21 +56,29 @@ function TrackerWorkspace() {
     getTransactions();
     getGoals();
     getBudgets();
+    getUserProfile();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authReady, configured, isAuthenticated]);
 
+  const navigateToPage = page => {
+    navigate(pagePaths[page] || '/');
+  };
+
   return (
     <main className="app-frame">
-      <PageNav activePage={activePage} onChange={setActivePage}/>
+      <PageNav/>
       {error && <div className="notice app-notice">{error}</div>}
-      <div className="page-title-mobile">{pageTitles[activePage]}</div>
+      <div className="page-title-mobile">{mobileTitle}</div>
 
-      {activePage === 'home' && <LandingPage stats={stats} onNavigate={setActivePage}/>}
-      {activePage === 'dashboard' && <DashboardPage stats={stats} transactions={transactions} loading={loading}/>}
-      {activePage === 'budgets' && <BudgetsPage stats={stats} budgets={budgets}/>}
-      {activePage === 'goals' && <GoalsPage stats={stats} goals={goals}/>}
-      {activePage === 'account' && <AccountPage/>}
-      {activePage === 'cloud' && <CloudPlanPage/>}
+      <Routes>
+        <Route path="/" element={<LandingPage stats={stats} onNavigate={navigateToPage}/>}/>
+        <Route path="/dashboard" element={<DashboardPage stats={stats} transactions={transactions} loading={loading}/>}/>
+        <Route path="/budgets" element={<BudgetsPage stats={stats} budgets={budgets}/>}/>
+        <Route path="/goals" element={<GoalsPage stats={stats} goals={goals}/>}/>
+        <Route path="/account" element={<AccountPage/>}/>
+        <Route path="/cloud" element={<CloudPlanPage/>}/>
+        <Route path="*" element={<Navigate to="/" replace/>}/>
+      </Routes>
     </main>
   );
 }
@@ -66,7 +87,9 @@ function App() {
   return (
     <AuthProvider>
       <GlobalProvider>
-        <TrackerWorkspace/>
+        <BrowserRouter>
+          <TrackerWorkspace/>
+        </BrowserRouter>
       </GlobalProvider>
     </AuthProvider>
   );

@@ -7,6 +7,7 @@ const initialState = {
     transactions: [],
     goals: [],
     budgets: [],
+    userProfile: null,
     error: null,
     loading: true
 }
@@ -169,6 +170,44 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
+    async function getUserProfile() {
+        try {
+            const res = await axios.get('/api/v1/me');
+
+            dispatch({
+                type: 'GET_USER_PROFILE',
+                payload: res.data.data
+            });
+        } catch (err) {
+            dispatch({
+                type: 'PROFILE_ERROR',
+                payload: err.response?.data?.error || 'Unable to load user settings.'
+            });
+        }
+    }
+
+    async function updateUserProfile(settings) {
+        const config = {
+            headers: {
+                'Content-type': 'application/json'
+            }
+        }
+
+        try {
+            const res = await axios.put('/api/v1/me', settings, config);
+
+            dispatch({
+                type: 'UPDATE_USER_PROFILE',
+                payload: res.data.data
+            });
+        } catch (err) {
+            dispatch({
+                type: 'PROFILE_ERROR',
+                payload: err.response?.data?.error || 'Unable to update user settings.'
+            });
+        }
+    }
+
     async function addBudget(budget) {
         const config = {
             headers: {
@@ -233,6 +272,7 @@ export const GlobalProvider = ({ children }) => {
         transactions: state.transactions,
         goals: state.goals,
         budgets: state.budgets,
+        userProfile: state.userProfile,
         error: state.error,
         loading: state.loading,
         getTransactions,
@@ -245,7 +285,9 @@ export const GlobalProvider = ({ children }) => {
         getBudgets,
         addBudget,
         updateBudget,
-        deleteBudget
+        deleteBudget,
+        getUserProfile,
+        updateUserProfile
     }}>
         {children}
     </GlobalContext.Provider>)

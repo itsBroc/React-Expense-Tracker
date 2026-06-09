@@ -1,5 +1,5 @@
 const Goal = require('../models/Goal');
-const { getUserFilter, withUser } = require('../utils/userScope');
+const { getUserFilter, stripOwnershipFields, withUser } = require('../utils/userScope');
 
 function sendValidationError(error, res) {
     const messages = Object.values(error.errors).map(val => val.message);
@@ -63,7 +63,7 @@ exports.updateGoal = async (req, res, next) => {
                 _id: req.params.id,
                 ...getUserFilter(req)
             },
-            req.body,
+            stripOwnershipFields(req.body),
             {
                 new: true,
                 runValidators: true

@@ -1,8 +1,50 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { GlobalContext } from '../context/GlobalState';
+
+const defaultSettings = {
+  baseCurrency: 'AUD',
+  locale: 'en-AU',
+  timezone: 'Australia/Sydney',
+  monthStartDay: 1,
+  theme: 'system'
+};
 
 export const AccountPage = () => {
   const { authError, configured, config, isAuthenticated, profile, signIn, signOut } = useAuth();
+  const { updateUserProfile, userProfile } = useContext(GlobalContext);
+  const [settings, setSettings] = useState(defaultSettings);
+
+  useEffect(() => {
+    if (!userProfile) {
+      return;
+    }
+
+    setSettings({
+      baseCurrency: userProfile.baseCurrency || defaultSettings.baseCurrency,
+      locale: userProfile.locale || defaultSettings.locale,
+      timezone: userProfile.timezone || defaultSettings.timezone,
+      monthStartDay: userProfile.monthStartDay || defaultSettings.monthStartDay,
+      theme: userProfile.theme || defaultSettings.theme
+    });
+  }, [userProfile]);
+
+  const handleChange = event => {
+    setSettings({
+      ...settings,
+      [event.target.name]: event.target.value
+    });
+  };
+
+  const handleSubmit = event => {
+    event.preventDefault();
+
+    updateUserProfile({
+      ...settings,
+      baseCurrency: settings.baseCurrency.toUpperCase(),
+      monthStartDay: Number(settings.monthStartDay)
+    });
+  };
 
   return (
     <section>
@@ -53,23 +95,56 @@ export const AccountPage = () => {
         </section>
 
         <section className="panel account-panel">
-          <h2>Cognito setup values</h2>
-          <dl className="profile-list">
-            <div>
-              <dt>Domain</dt>
-              <dd>{config.domain || 'REACT_APP_COGNITO_DOMAIN not set'}</dd>
+          <h2>Preferences</h2>
+          <form className="settings-form" onSubmit={handleSubmit}>
+            <div className="form-control">
+              <label htmlFor="baseCurrency">Base currency</label>
+              <input id="baseCurrency" name="baseCurrency" type="text" maxLength="3" value={settings.baseCurrency} onChange={handleChange}/>
             </div>
-            <div>
-              <dt>Client id</dt>
-              <dd>{config.clientId || 'REACT_APP_COGNITO_CLIENT_ID not set'}</dd>
+            <div className="form-control">
+              <label htmlFor="locale">Locale</label>
+              <input id="locale" name="locale" type="text" value={settings.locale} onChange={handleChange}/>
             </div>
-            <div>
-              <dt>User pool</dt>
-              <dd>{config.userPoolId || 'REACT_APP_COGNITO_USER_POOL_ID not set'}</dd>
+            <div className="form-control">
+              <label htmlFor="timezone">Timezone</label>
+              <input id="timezone" name="timezone" type="text" value={settings.timezone} onChange={handleChange}/>
             </div>
-          </dl>
+            <div className="form-row">
+              <div className="form-control">
+                <label htmlFor="monthStartDay">Month starts</label>
+                <input id="monthStartDay" name="monthStartDay" type="number" min="1" max="28" value={settings.monthStartDay} onChange={handleChange}/>
+              </div>
+              <div className="form-control">
+                <label htmlFor="theme">Theme</label>
+                <select id="theme" name="theme" value={settings.theme} onChange={handleChange}>
+                  <option value="system">System</option>
+                  <option value="light">Light</option>
+                  <option value="dark">Dark</option>
+                </select>
+              </div>
+            </div>
+            <button className="btn">Save preferences</button>
+          </form>
         </section>
       </div>
+
+      <section className="panel architecture-panel">
+        <h2>Cognito setup values</h2>
+        <dl className="profile-list">
+          <div>
+            <dt>Domain</dt>
+            <dd>{config.domain || 'REACT_APP_COGNITO_DOMAIN not set'}</dd>
+          </div>
+          <div>
+            <dt>Client id</dt>
+            <dd>{config.clientId || 'REACT_APP_COGNITO_CLIENT_ID not set'}</dd>
+          </div>
+          <div>
+            <dt>User pool</dt>
+            <dd>{config.userPoolId || 'REACT_APP_COGNITO_USER_POOL_ID not set'}</dd>
+          </div>
+        </dl>
+      </section>
     </section>
   );
 };
