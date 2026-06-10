@@ -484,6 +484,10 @@ input[type='search'] {
   width: 230px;
 }
 
+.transaction-tools select {
+  width: 190px;
+}
+
 .segmented-control {
   background: var(--surface-muted);
   border: 1px solid var(--line);
@@ -903,6 +907,7 @@ input[type='search'] {
 
   .status-block,
   input[type='search'],
+  .transaction-tools select,
   .transaction-tools {
     width: 100%;
   }
