@@ -76,6 +76,10 @@ export const CategoriesPage = () => {
             </div>
           </div>
           <div className="color-picker" aria-label="Category color">
+            <div className="form-control custom-color-control">
+              <label htmlFor="category-color">Custom color</label>
+              <input id="category-color" name="color" type="color" value={form.color} onChange={handleChange}/>
+            </div>
             {colorOptions.map(color => (
               <button
                 aria-label={color}

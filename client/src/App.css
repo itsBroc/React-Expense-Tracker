@@ -727,9 +727,23 @@ input[type='search'] {
 }
 
 .color-picker {
+  align-items: end;
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.custom-color-control {
+  min-width: 120px;
+}
+
+input[type='color'] {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  min-height: 42px;
+  padding: 4px;
+  width: 100%;
 }
 
 .color-swatch {
