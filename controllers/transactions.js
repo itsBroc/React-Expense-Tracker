@@ -1,5 +1,5 @@
 const Transaction = require('../models/Transaction');
-const { normalizeTransactionInput } = require('../utils/money');
+const { applyAccountBalanceAdjustment, normalizeTransactionForUser } = require('../utils/transactions');
 const { getUserFilter, withUser } = require('../utils/userScope');
 
 // @desc    Get all transactions
@@ -27,7 +27,8 @@ exports.getTransactions = async (req, res, next) => {
 // @access  public
 exports.addTransaction = async (req, res, next) => {
     try {
-        const transaction = await Transaction.create(withUser(req, normalizeTransactionInput(req.body)));
+        const transaction = await Transaction.create(withUser(req, await normalizeTransactionForUser(req, req.body)));
+        await applyAccountBalanceAdjustment(req, transaction, 1);
     
         return res.status(201).json({
             success: true,
@@ -35,6 +36,13 @@ exports.addTransaction = async (req, res, next) => {
         }) 
     } catch (error) {
         if(error.name === 'MoneyValidationError'){
+            return res.status(400).json({
+                success: false,
+                error: error.message
+            })
+        }
+
+        if(error.name === 'TransactionValidationError'){
             return res.status(400).json({
                 success: false,
                 error: error.message
@@ -77,6 +85,7 @@ exports.deleteTransaction = async (req, res, next) => {
         }
 
         await transaction.deleteOne();
+        await applyAccountBalanceAdjustment(req, transaction, -1);
 
         return res.status(200).json({
             success: true,

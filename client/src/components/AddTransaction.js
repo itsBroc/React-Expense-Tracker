@@ -5,6 +5,7 @@ import { expenseCategories, incomeCategories } from '../utils/finance'
 const initialForm = {
   text: '',
   amount: '',
+  accountId: '',
   category: expenseCategories[0],
   createdAt: '',
   notes: ''
@@ -13,7 +14,7 @@ const initialForm = {
 export const AddTransaction = ({ compact = false }) => {
   const [form, setForm] = useState(initialForm);
   const [kind, setKind] = useState('expense');
-  const { addTransaction } = useContext(GlobalContext);
+  const { accounts, addTransaction } = useContext(GlobalContext);
 
   const categories = kind === 'expense' ? expenseCategories : incomeCategories;
 
@@ -44,6 +45,7 @@ export const AddTransaction = ({ compact = false }) => {
       id: Math.floor(Math.random() * 10000000),
       text: form.text.trim(),
       amount: kind === 'expense' ? -numericAmount : numericAmount,
+      accountId: form.accountId,
       category: form.category,
       notes: form.notes.trim()
     }
@@ -89,6 +91,15 @@ export const AddTransaction = ({ compact = false }) => {
               </select>
           </div>
         </div>
+        {accounts.length > 0 && (
+          <div className="form-control">
+            <label htmlFor="accountId">Account</label>
+            <select id="accountId" name="accountId" value={form.accountId} onChange={handleChange}>
+              <option value="">No account</option>
+              {accounts.map(account => <option key={account._id} value={account._id}>{account.name}</option>)}
+            </select>
+          </div>
+        )}
         <div className="form-control">
             <label htmlFor="createdAt">Date</label>
             <input id="createdAt" name="createdAt" type="date" value={form.createdAt} onChange={handleChange}/>

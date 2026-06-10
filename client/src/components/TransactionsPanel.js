@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Transaction } from './Transaction';
-import { getTransactionDate } from '../utils/finance';
+import { getTransactionAmount, getTransactionDate } from '../utils/finance';
 
 export const TransactionsPanel = ({ transactions, loading }) => {
   const [search, setSearch] = useState('');
@@ -10,9 +10,10 @@ export const TransactionsPanel = ({ transactions, loading }) => {
     return transactions
       .filter(transaction => {
         const matchesSearch = transaction.text.toLowerCase().includes(search.toLowerCase());
+        const amount = getTransactionAmount(transaction);
         const matchesType = typeFilter === 'all'
-          || (typeFilter === 'income' && transaction.amount > 0)
-          || (typeFilter === 'expense' && transaction.amount < 0);
+          || (typeFilter === 'income' && amount > 0)
+          || (typeFilter === 'expense' && amount < 0);
 
         return matchesSearch && matchesType;
       })

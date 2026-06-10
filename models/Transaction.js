@@ -5,6 +5,11 @@ const TransactionSchema = new mongoose.Schema({
         type: String,
         index: true
     },
+    accountId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Account',
+        index: true
+    },
     text: {
         type: String,
         trim: true,
@@ -46,5 +51,6 @@ const TransactionSchema = new mongoose.Schema({
 
 TransactionSchema.index({ userId: 1, createdAt: -1 });
 TransactionSchema.index({ userId: 1, category: 1, createdAt: -1 });
+TransactionSchema.index({ userId: 1, accountId: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Transaction', TransactionSchema);

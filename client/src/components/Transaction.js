@@ -9,9 +9,10 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
 });
 
 export const Transaction = ({ transaction }) => {
-  const { deleteTransaction } = useContext(GlobalContext);
+  const { accounts, deleteTransaction } = useContext(GlobalContext);
   const date = transaction.createdAt ? new Date(transaction.createdAt) : new Date();
   const amount = getTransactionAmount(transaction);
+  const account = accounts.find(item => item._id === transaction.accountId);
 
   return (
     <li className={amount < 0 ? 'transaction-row expense' : 'transaction-row income'}>
@@ -20,6 +21,7 @@ export const Transaction = ({ transaction }) => {
         <span>
           {dateFormatter.format(date)}
           {transaction.category && <i className="category-chip">{transaction.category}</i>}
+          {account && <i className="category-chip account-chip">{account.name}</i>}
         </span>
         {transaction.notes && <small>{transaction.notes}</small>}
       </div>

@@ -545,6 +545,10 @@ input[type='search'] {
   padding: 2px 8px;
 }
 
+.account-chip {
+  background: var(--blue-soft);
+}
+
 .amount {
   font-weight: 700;
   white-space: nowrap;

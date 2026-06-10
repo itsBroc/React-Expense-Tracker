@@ -1,3 +1,30 @@
+function getTransactionAmountMinor(transaction) {
+  if (Number.isFinite(transaction?.amountMinor)) {
+    return transaction.amountMinor;
+  }
+
+  return Math.round(Number(transaction?.amount || 0) * 100);
+}
+
+function adjustAccountBalance(accounts, transaction, direction = 1) {
+  if (!transaction?.accountId) {
+    return accounts;
+  }
+
+  const amountMinor = getTransactionAmountMinor(transaction) * direction;
+
+  return accounts.map(account => {
+    if (account._id !== transaction.accountId) {
+      return account;
+    }
+
+    return {
+      ...account,
+      currentBalanceMinor: Number(account.currentBalanceMinor || 0) + amountMinor
+    };
+  });
+}
+
 const AppReducer = (state, action) => {
   switch(action.type) {
     case 'GET_ACCOUNTS':
@@ -28,12 +55,16 @@ const AppReducer = (state, action) => {
         error: null,
         userProfile: action.payload
       }
-    case 'DELETE_TRANSACTION':
+    case 'DELETE_TRANSACTION': {
+      const deletedTransaction = state.transactions.find(transaction => transaction._id === action.payload);
+
       return {
         ...state,
         error: null,
+        accounts: adjustAccountBalance(state.accounts, deletedTransaction, -1),
         transactions: state.transactions.filter(transaction => transaction._id !== action.payload)
       }
+    }
     case 'ADD_ACCOUNT':
       return {
         ...state,
@@ -56,6 +87,7 @@ const AppReducer = (state, action) => {
       return {
         ...state,
         error: null,
+        accounts: adjustAccountBalance(state.accounts, action.payload, 1),
         transactions: [...state.transactions, action.payload]
       }
     case 'ADD_GOAL':
