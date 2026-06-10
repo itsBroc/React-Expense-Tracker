@@ -5,6 +5,7 @@ import axios from 'axios';
 // Initial State
 const initialState = {
     accounts: [],
+    categories: [],
     transactions: [],
     goals: [],
     budgets: [],
@@ -187,6 +188,82 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
+    async function getCategories() {
+        try {
+            const res = await axios.get('/api/v1/categories');
+
+            dispatch({
+                type: 'GET_CATEGORIES',
+                payload: res.data.data
+            });
+        } catch (err) {
+            dispatch({
+                type: 'CATEGORY_ERROR',
+                payload: err.response?.data?.error || 'Unable to load categories.'
+            });
+        }
+    }
+
+    async function addCategory(category) {
+        const config = {
+            headers: {
+                'Content-type': 'application/json'
+            }
+        }
+
+        try {
+            const res = await axios.post('/api/v1/categories', category, config);
+
+            dispatch({
+                type: 'ADD_CATEGORY',
+                payload: res.data.data
+            });
+        } catch (err) {
+            dispatch({
+                type: 'CATEGORY_ERROR',
+                payload: err.response?.data?.error || 'Unable to add the category.'
+            });
+        }
+    }
+
+    async function updateCategory(id, category) {
+        const config = {
+            headers: {
+                'Content-type': 'application/json'
+            }
+        }
+
+        try {
+            const res = await axios.put(`/api/v1/categories/${id}`, category, config);
+
+            dispatch({
+                type: 'UPDATE_CATEGORY',
+                payload: res.data.data
+            });
+        } catch (err) {
+            dispatch({
+                type: 'CATEGORY_ERROR',
+                payload: err.response?.data?.error || 'Unable to update the category.'
+            });
+        }
+    }
+
+    async function deleteCategory(id) {
+        try {
+            await axios.delete(`/api/v1/categories/${id}`);
+
+            dispatch({
+                type: 'DELETE_CATEGORY',
+                payload: id
+            });
+        } catch (err) {
+            dispatch({
+                type: 'CATEGORY_ERROR',
+                payload: err.response?.data?.error || 'Unable to delete the category.'
+            });
+        }
+    }
+
     async function addAccount(account) {
         const config = {
             headers: {
@@ -347,6 +424,7 @@ export const GlobalProvider = ({ children }) => {
 
     return (<GlobalContext.Provider value={{
         accounts: state.accounts,
+        categories: state.categories,
         transactions: state.transactions,
         goals: state.goals,
         budgets: state.budgets,
@@ -368,6 +446,10 @@ export const GlobalProvider = ({ children }) => {
         addAccount,
         updateAccount,
         deleteAccount,
+        getCategories,
+        addCategory,
+        updateCategory,
+        deleteCategory,
         getUserProfile,
         updateUserProfile
     }}>

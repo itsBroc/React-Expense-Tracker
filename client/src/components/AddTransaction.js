@@ -1,4 +1,4 @@
-import React, {useState, useContext} from 'react'
+import React, {useState, useContext, useMemo} from 'react'
 import { GlobalContext } from '../context/GlobalState'
 import { expenseCategories, incomeCategories } from '../utils/finance'
 
@@ -14,15 +14,30 @@ const initialForm = {
 export const AddTransaction = ({ compact = false }) => {
   const [form, setForm] = useState(initialForm);
   const [kind, setKind] = useState('expense');
-  const { accounts, addTransaction } = useContext(GlobalContext);
+  const { accounts, addTransaction, categories: userCategories } = useContext(GlobalContext);
 
-  const categories = kind === 'expense' ? expenseCategories : incomeCategories;
+  const categories = useMemo(() => {
+    const matchingCategories = userCategories
+      .filter(category => category.type === kind && !category.isArchived)
+      .map(category => category.name);
+
+    if (matchingCategories.length > 0) {
+      return matchingCategories;
+    }
+
+    return kind === 'expense' ? expenseCategories : incomeCategories;
+  }, [kind, userCategories]);
 
   const handleKindChange = nextKind => {
+    const fallbackCategories = nextKind === 'expense' ? expenseCategories : incomeCategories;
+    const nextCategories = userCategories
+      .filter(category => category.type === nextKind && !category.isArchived)
+      .map(category => category.name);
+
     setKind(nextKind);
     setForm({
       ...form,
-      category: nextKind === 'expense' ? expenseCategories[0] : incomeCategories[0]
+      category: nextCategories[0] || fallbackCategories[0]
     });
   };
 

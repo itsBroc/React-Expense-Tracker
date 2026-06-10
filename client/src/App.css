@@ -689,6 +689,59 @@ input[type='search'] {
   white-space: nowrap;
 }
 
+.category-management-grid,
+.managed-category-list {
+  display: grid;
+  gap: 14px;
+}
+
+.category-management-panel {
+  align-self: start;
+}
+
+.managed-category-row {
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  padding: 12px;
+}
+
+.managed-category-row strong,
+.managed-category-row span {
+  display: block;
+}
+
+.managed-category-row span {
+  color: var(--muted);
+}
+
+.category-color,
+.color-swatch {
+  border-radius: 50%;
+  display: block;
+  height: 18px;
+  width: 18px;
+}
+
+.color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.color-swatch {
+  border: 2px solid transparent;
+  min-height: 28px;
+  width: 28px;
+}
+
+.color-swatch.active {
+  border-color: var(--text);
+}
+
 .account-panel:first-child {
   border-top: 5px solid var(--teal);
 }
@@ -933,6 +986,15 @@ input[type='search'] {
   .account-card {
     align-items: stretch;
     grid-template-columns: 1fr;
+  }
+
+  .managed-category-row {
+    align-items: stretch;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .managed-category-row .delete-btn {
+    grid-column: 1 / -1;
   }
 
   .delete-btn {

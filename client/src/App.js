@@ -4,6 +4,7 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from
 import { PageNav } from './components/PageNav';
 import { AccountPage } from './pages/AccountPage';
 import { BudgetsPage } from './pages/BudgetsPage';
+import { CategoriesPage } from './pages/CategoriesPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { GoalsPage } from './pages/GoalsPage';
 import { LandingPage } from './pages/LandingPage';
@@ -15,6 +16,7 @@ const pageTitles = {
   '/': 'Home',
   '/account': 'Account',
   '/budgets': 'Budgets',
+  '/categories': 'Categories',
   '/dashboard': 'Dashboard',
   '/goals': 'Goals'
 };
@@ -22,6 +24,7 @@ const pageTitles = {
 const pagePaths = {
   account: '/account',
   budgets: '/budgets',
+  categories: '/categories',
   dashboard: '/dashboard',
   goals: '/goals',
   home: '/'
@@ -33,6 +36,7 @@ function TrackerWorkspace() {
     goals,
     budgets,
     getAccounts,
+    getCategories,
     getTransactions,
     getGoals,
     getBudgets,
@@ -55,6 +59,7 @@ function TrackerWorkspace() {
     getGoals();
     getBudgets();
     getAccounts();
+    getCategories();
     getUserProfile();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authReady, configured, isAuthenticated]);
@@ -73,6 +78,7 @@ function TrackerWorkspace() {
         <Route path="/" element={<LandingPage stats={stats} onNavigate={navigateToPage}/>}/>
         <Route path="/dashboard" element={<DashboardPage stats={stats} transactions={transactions} loading={loading}/>}/>
         <Route path="/budgets" element={<BudgetsPage stats={stats} budgets={budgets}/>}/>
+        <Route path="/categories" element={<CategoriesPage/>}/>
         <Route path="/goals" element={<GoalsPage stats={stats} goals={goals}/>}/>
         <Route path="/account" element={<AccountPage/>}/>
         <Route path="*" element={<Navigate to="/" replace/>}/>
