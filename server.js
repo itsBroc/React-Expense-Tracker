@@ -11,6 +11,7 @@ connectDB();
 const transactions = require('./routes/transactions');
 const goals = require('./routes/goals');
 const budgets = require('./routes/budgets');
+const accounts = require('./routes/accounts');
 const userProfile = require('./routes/userProfile');
 const { protect } = require('./middleware/auth');
 
@@ -25,6 +26,7 @@ if(process.env.NODE_ENV === 'development'){
 app.use('/api/v1/transactions', protect, transactions);
 app.use('/api/v1/goals', protect, goals);
 app.use('/api/v1/budgets', protect, budgets);
+app.use('/api/v1/accounts', protect, accounts);
 app.use('/api/v1/me', protect, userProfile);
 
 const PORT = process.env.PORT || 5000;
