@@ -14,6 +14,21 @@ const TransactionSchema = new mongoose.Schema({
         type: Number,
         required: [true, 'Please add a positive or negative number']
     },
+    amountMinor: {
+        type: Number,
+        validate: {
+            validator: Number.isInteger,
+            message: 'Amount minor units must be an integer'
+        }
+    },
+    currency: {
+        type: String,
+        uppercase: true,
+        trim: true,
+        default: 'AUD',
+        minlength: 3,
+        maxlength: 3
+    },
     category: {
         type: String,
         trim: true,
@@ -27,6 +42,9 @@ const TransactionSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
-})
+});
+
+TransactionSchema.index({ userId: 1, createdAt: -1 });
+TransactionSchema.index({ userId: 1, category: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Transaction', TransactionSchema);

@@ -1,4 +1,5 @@
 const Goal = require('../models/Goal');
+const { normalizeGoalInput } = require('../utils/money');
 const { getUserFilter, stripOwnershipFields, withUser } = require('../utils/userScope');
 
 function sendValidationError(error, res) {
@@ -35,13 +36,20 @@ exports.getGoals = async (req, res, next) => {
 // @access  public
 exports.addGoal = async (req, res, next) => {
     try {
-        const goal = await Goal.create(withUser(req, req.body));
+        const goal = await Goal.create(withUser(req, normalizeGoalInput(req.body)));
 
         return res.status(201).json({
             success: true,
             data: goal
         });
     } catch (error) {
+        if (error.name === 'MoneyValidationError') {
+            return res.status(400).json({
+                success: false,
+                error: error.message
+            });
+        }
+
         if (error.name === 'ValidationError') {
             return sendValidationError(error, res);
         }
@@ -63,7 +71,7 @@ exports.updateGoal = async (req, res, next) => {
                 _id: req.params.id,
                 ...getUserFilter(req)
             },
-            stripOwnershipFields(req.body),
+            stripOwnershipFields(normalizeGoalInput(req.body)),
             {
                 new: true,
                 runValidators: true
@@ -82,6 +90,13 @@ exports.updateGoal = async (req, res, next) => {
             data: goal
         });
     } catch (error) {
+        if (error.name === 'MoneyValidationError') {
+            return res.status(400).json({
+                success: false,
+                error: error.message
+            });
+        }
+
         if (error.name === 'ValidationError') {
             return sendValidationError(error, res);
         }

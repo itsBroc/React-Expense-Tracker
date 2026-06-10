@@ -1,10 +1,6 @@
 import React, {useContext} from 'react'
 import { GlobalContext } from '../context/GlobalState'
-
-const currencyFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD'
-});
+import { formatCurrency, getTransactionAmount } from '../utils/finance';
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
   month: 'short',
@@ -15,9 +11,10 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
 export const Transaction = ({ transaction }) => {
   const { deleteTransaction } = useContext(GlobalContext);
   const date = transaction.createdAt ? new Date(transaction.createdAt) : new Date();
+  const amount = getTransactionAmount(transaction);
 
   return (
-    <li className={transaction.amount < 0 ? 'transaction-row expense' : 'transaction-row income'}>
+    <li className={amount < 0 ? 'transaction-row expense' : 'transaction-row income'}>
       <div className="transaction-copy">
         <strong>{transaction.text}</strong>
         <span>
@@ -26,8 +23,8 @@ export const Transaction = ({ transaction }) => {
         </span>
         {transaction.notes && <small>{transaction.notes}</small>}
       </div>
-      <span className={transaction.amount < 0 ? 'amount negative' : 'amount positive'}>
-        {currencyFormatter.format(transaction.amount)}
+      <span className={amount < 0 ? 'amount negative' : 'amount positive'}>
+        {formatCurrency(amount)}
       </span>
       <button onClick={() => deleteTransaction(transaction._id)} className="delete-btn" aria-label={`Delete ${transaction.text}`}>
         Delete

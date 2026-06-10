@@ -1,4 +1,5 @@
 const Budget = require('../models/Budget');
+const { normalizeBudgetInput } = require('../utils/money');
 const { getUserFilter, stripOwnershipFields, withUser } = require('../utils/userScope');
 
 function sendValidationError(error, res) {
@@ -35,13 +36,20 @@ exports.getBudgets = async (req, res, next) => {
 // @access  public
 exports.addBudget = async (req, res, next) => {
     try {
-        const budget = await Budget.create(withUser(req, req.body));
+        const budget = await Budget.create(withUser(req, normalizeBudgetInput(req.body)));
 
         return res.status(201).json({
             success: true,
             data: budget
         });
     } catch (error) {
+        if (error.name === 'MoneyValidationError') {
+            return res.status(400).json({
+                success: false,
+                error: error.message
+            });
+        }
+
         if (error.name === 'ValidationError') {
             return sendValidationError(error, res);
         }
@@ -63,7 +71,7 @@ exports.updateBudget = async (req, res, next) => {
                 _id: req.params.id,
                 ...getUserFilter(req)
             },
-            stripOwnershipFields(req.body),
+            stripOwnershipFields(normalizeBudgetInput(req.body)),
             {
                 new: true,
                 runValidators: true
@@ -82,6 +90,13 @@ exports.updateBudget = async (req, res, next) => {
             data: budget
         });
     } catch (error) {
+        if (error.name === 'MoneyValidationError') {
+            return res.status(400).json({
+                success: false,
+                error: error.message
+            });
+        }
+
         if (error.name === 'ValidationError') {
             return sendValidationError(error, res);
         }

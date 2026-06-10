@@ -1,7 +1,4 @@
-const currencyFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD'
-});
+export const DEFAULT_CURRENCY = 'AUD';
 
 const monthFormatter = new Intl.DateTimeFormat('en-US', {
   month: 'short',
@@ -46,7 +43,38 @@ export const incomeCategories = [
 ];
 
 export function formatCurrency(value) {
-  return currencyFormatter.format(value || 0);
+  return new Intl.NumberFormat('en-AU', {
+    style: 'currency',
+    currency: DEFAULT_CURRENCY
+  }).format(value || 0);
+}
+
+export function minorToMajor(value) {
+  return Number.isFinite(value) ? value / 100 : 0;
+}
+
+export function getMoneyValue(record, minorField, legacyField) {
+  if (Number.isFinite(record?.[minorField])) {
+    return minorToMajor(record[minorField]);
+  }
+
+  return Number(record?.[legacyField] || 0);
+}
+
+export function getTransactionAmount(transaction) {
+  return getMoneyValue(transaction, 'amountMinor', 'amount');
+}
+
+export function getBudgetLimit(budget) {
+  return getMoneyValue(budget, 'limitMinor', 'limit');
+}
+
+export function getGoalTarget(goal) {
+  return getMoneyValue(goal, 'targetAmountMinor', 'target');
+}
+
+export function getGoalCurrent(goal) {
+  return getMoneyValue(goal, 'currentAmountMinor', 'current');
 }
 
 export function getTransactionDate(transaction) {
@@ -60,7 +88,7 @@ export function inferCategory(transaction) {
 
   const text = transaction.text.toLowerCase();
   const match = expenseRules.find(rule => rule.terms.some(term => text.includes(term)));
-  return match ? match.category : transaction.amount < 0 ? 'Other spending' : 'Income';
+  return match ? match.category : getTransactionAmount(transaction) < 0 ? 'Other spending' : 'Income';
 }
 
 function getMonthKey(date) {
@@ -68,8 +96,8 @@ function getMonthKey(date) {
 }
 
 export function buildFinanceStats(transactions) {
-  const expenseTransactions = transactions.filter(transaction => transaction.amount < 0);
-  const amounts = transactions.map(transaction => transaction.amount);
+  const expenseTransactions = transactions.filter(transaction => getTransactionAmount(transaction) < 0);
+  const amounts = transactions.map(getTransactionAmount);
   const balance = amounts.reduce((total, amount) => total + amount, 0);
   const income = amounts.filter(amount => amount > 0).reduce((total, amount) => total + amount, 0);
   const expenses = Math.abs(amounts.filter(amount => amount < 0).reduce((total, amount) => total + amount, 0));
@@ -88,12 +116,14 @@ export function buildFinanceStats(transactions) {
       expenses: 0
     };
 
-    if (transaction.amount > 0) {
-      currentMonth.income += transaction.amount;
+    const amount = getTransactionAmount(transaction);
+
+    if (amount > 0) {
+      currentMonth.income += amount;
     } else {
-      currentMonth.expenses += Math.abs(transaction.amount);
+      currentMonth.expenses += Math.abs(amount);
       const category = inferCategory(transaction);
-      categoryMap.set(category, (categoryMap.get(category) || 0) + Math.abs(transaction.amount));
+      categoryMap.set(category, (categoryMap.get(category) || 0) + Math.abs(amount));
     }
 
     monthMap.set(monthKey, currentMonth);
@@ -105,7 +135,7 @@ export function buildFinanceStats(transactions) {
     .sort((a, b) => b.value - a.value)
     .slice(0, 5);
   const recentTransactions = [...transactions].sort((a, b) => getTransactionDate(b) - getTransactionDate(a)).slice(0, 5);
-  const largestExpense = [...expenseTransactions].sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount))[0];
+  const largestExpense = [...expenseTransactions].sort((a, b) => Math.abs(getTransactionAmount(b)) - Math.abs(getTransactionAmount(a)))[0];
 
   return {
     averageExpense,

@@ -9,7 +9,8 @@
     "client": "npm start --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "test:server": "node --test",
-    "migrate:local-dev-user": "node scripts/backfillLocalDevUser.js"
+    "migrate:local-dev-user": "node scripts/backfillLocalDevUser.js",
+    "migrate:money-minor-units": "node scripts/backfillMoneyMinorUnits.js"
   },
   "author": "Broc",
   "license": "MIT",

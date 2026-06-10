@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { GlobalContext } from '../context/GlobalState';
-import { formatCurrency } from '../utils/finance';
+import { formatCurrency, getBudgetLimit } from '../utils/finance';
 
 const initialBudget = {
   category: '',
@@ -83,8 +83,9 @@ export const BudgetsPage = ({ stats, budgets }) => {
           {budgets.map(budget => {
             const category = stats.topCategories.find(item => item.category.toLowerCase() === budget.category.toLowerCase());
             const spent = category?.value || 0;
-            const percent = Math.min((spent / budget.limit) * 100, 100);
-            const isOver = spent > budget.limit;
+            const limit = getBudgetLimit(budget);
+            const percent = Math.min((spent / limit) * 100, 100);
+            const isOver = spent > limit;
 
             return (
               <article className={isOver ? 'panel budget-card budget-over' : 'panel budget-card'} key={budget._id}>
@@ -92,12 +93,12 @@ export const BudgetsPage = ({ stats, budgets }) => {
                   <h2>{budget.category}</h2>
                   <span>{budget.period}</span>
                 </div>
-                <strong>{formatCurrency(spent)} of {formatCurrency(budget.limit)}</strong>
+                <strong>{formatCurrency(spent)} of {formatCurrency(limit)}</strong>
                 <progress value={percent} max="100"></progress>
                 <p>
                   {isOver
-                    ? `${formatCurrency(spent - budget.limit)} over budget.`
-                    : `${formatCurrency(Math.max(budget.limit - spent, 0))} remaining.`}
+                    ? `${formatCurrency(spent - limit)} over budget.`
+                    : `${formatCurrency(Math.max(limit - spent, 0))} remaining.`}
                 </p>
                 {budget.notes && <p>{budget.notes}</p>}
                 <div className="card-actions">

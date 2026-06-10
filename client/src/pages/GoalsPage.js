@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { GlobalContext } from '../context/GlobalState';
-import { formatCurrency } from '../utils/finance';
+import { formatCurrency, getGoalCurrent, getGoalTarget } from '../utils/finance';
 
 const initialGoal = {
   name: '',
@@ -12,7 +12,7 @@ const initialGoal = {
 };
 
 function getProgress(goal) {
-  return Math.min(((goal.current || 0) / goal.target) * 100, 100);
+  return Math.min((getGoalCurrent(goal) / getGoalTarget(goal)) * 100, 100);
 }
 
 export const GoalsPage = ({ stats, goals }) => {
@@ -44,13 +44,15 @@ export const GoalsPage = ({ stats, goals }) => {
 
   const addProgress = goal => {
     const contribution = Number(window.prompt('Amount to add toward this goal', '50'));
+    const current = getGoalCurrent(goal);
+    const target = getGoalTarget(goal);
 
     if (!Number.isFinite(contribution) || contribution <= 0) {
       return;
     }
 
     updateGoal(goal._id, {
-      current: Math.min((goal.current || 0) + contribution, goal.target)
+      current: Math.min(current + contribution, target)
     });
   };
 
@@ -114,9 +116,9 @@ export const GoalsPage = ({ stats, goals }) => {
             <article className={`panel goal-card priority-${goal.priority}`} key={goal._id}>
               <div className="card-kicker">{goal.priority} priority</div>
               <h2>{goal.name}</h2>
-              <strong>{formatCurrency(goal.current)} saved</strong>
-              <progress value={goal.current} max={goal.target}></progress>
-              <p>{formatCurrency(Math.max(goal.target - goal.current, 0))} to reach {formatCurrency(goal.target)}.</p>
+              <strong>{formatCurrency(getGoalCurrent(goal))} saved</strong>
+              <progress value={getGoalCurrent(goal)} max={getGoalTarget(goal)}></progress>
+              <p>{formatCurrency(Math.max(getGoalTarget(goal) - getGoalCurrent(goal), 0))} to reach {formatCurrency(getGoalTarget(goal))}.</p>
               {goal.dueDate && <p>Target date: {new Date(goal.dueDate).toLocaleDateString()}</p>}
               {goal.notes && <p>{goal.notes}</p>}
               <div className="card-actions">
