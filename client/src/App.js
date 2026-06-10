@@ -4,7 +4,6 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from
 import { PageNav } from './components/PageNav';
 import { AccountPage } from './pages/AccountPage';
 import { BudgetsPage } from './pages/BudgetsPage';
-import { CloudPlanPage } from './pages/CloudPlanPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { GoalsPage } from './pages/GoalsPage';
 import { LandingPage } from './pages/LandingPage';
@@ -16,7 +15,6 @@ const pageTitles = {
   '/': 'Home',
   '/account': 'Account',
   '/budgets': 'Budgets',
-  '/cloud': 'Cloud Plan',
   '/dashboard': 'Dashboard',
   '/goals': 'Goals'
 };
@@ -24,7 +22,6 @@ const pageTitles = {
 const pagePaths = {
   account: '/account',
   budgets: '/budgets',
-  cloud: '/cloud',
   dashboard: '/dashboard',
   goals: '/goals',
   home: '/'
@@ -35,6 +32,7 @@ function TrackerWorkspace() {
     transactions,
     goals,
     budgets,
+    getAccounts,
     getTransactions,
     getGoals,
     getBudgets,
@@ -56,6 +54,7 @@ function TrackerWorkspace() {
     getTransactions();
     getGoals();
     getBudgets();
+    getAccounts();
     getUserProfile();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authReady, configured, isAuthenticated]);
@@ -76,7 +75,6 @@ function TrackerWorkspace() {
         <Route path="/budgets" element={<BudgetsPage stats={stats} budgets={budgets}/>}/>
         <Route path="/goals" element={<GoalsPage stats={stats} goals={goals}/>}/>
         <Route path="/account" element={<AccountPage/>}/>
-        <Route path="/cloud" element={<CloudPlanPage/>}/>
         <Route path="*" element={<Navigate to="/" replace/>}/>
       </Routes>
     </main>

@@ -6,8 +6,7 @@ const pages = [
   { path: '/dashboard', label: 'Dashboard' },
   { path: '/budgets', label: 'Budgets' },
   { path: '/goals', label: 'Goals' },
-  { path: '/account', label: 'Account' },
-  { path: '/cloud', label: 'Cloud plan' }
+  { path: '/account', label: 'Account' }
 ];
 
 export const PageNav = () => {

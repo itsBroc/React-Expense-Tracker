@@ -4,6 +4,7 @@ import axios from 'axios';
 
 // Initial State
 const initialState = {
+    accounts: [],
     transactions: [],
     goals: [],
     budgets: [],
@@ -170,6 +171,82 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
+    async function getAccounts() {
+        try {
+            const res = await axios.get('/api/v1/accounts');
+
+            dispatch({
+                type: 'GET_ACCOUNTS',
+                payload: res.data.data
+            });
+        } catch (err) {
+            dispatch({
+                type: 'ACCOUNT_ERROR',
+                payload: err.response?.data?.error || 'Unable to load accounts.'
+            });
+        }
+    }
+
+    async function addAccount(account) {
+        const config = {
+            headers: {
+                'Content-type': 'application/json'
+            }
+        }
+
+        try {
+            const res = await axios.post('/api/v1/accounts', account, config);
+
+            dispatch({
+                type: 'ADD_ACCOUNT',
+                payload: res.data.data
+            });
+        } catch (err) {
+            dispatch({
+                type: 'ACCOUNT_ERROR',
+                payload: err.response?.data?.error || 'Unable to add the account.'
+            });
+        }
+    }
+
+    async function updateAccount(id, account) {
+        const config = {
+            headers: {
+                'Content-type': 'application/json'
+            }
+        }
+
+        try {
+            const res = await axios.put(`/api/v1/accounts/${id}`, account, config);
+
+            dispatch({
+                type: 'UPDATE_ACCOUNT',
+                payload: res.data.data
+            });
+        } catch (err) {
+            dispatch({
+                type: 'ACCOUNT_ERROR',
+                payload: err.response?.data?.error || 'Unable to update the account.'
+            });
+        }
+    }
+
+    async function deleteAccount(id) {
+        try {
+            await axios.delete(`/api/v1/accounts/${id}`);
+
+            dispatch({
+                type: 'DELETE_ACCOUNT',
+                payload: id
+            });
+        } catch (err) {
+            dispatch({
+                type: 'ACCOUNT_ERROR',
+                payload: err.response?.data?.error || 'Unable to delete the account.'
+            });
+        }
+    }
+
     async function getUserProfile() {
         try {
             const res = await axios.get('/api/v1/me');
@@ -269,6 +346,7 @@ export const GlobalProvider = ({ children }) => {
     }
 
     return (<GlobalContext.Provider value={{
+        accounts: state.accounts,
         transactions: state.transactions,
         goals: state.goals,
         budgets: state.budgets,
@@ -286,6 +364,10 @@ export const GlobalProvider = ({ children }) => {
         addBudget,
         updateBudget,
         deleteBudget,
+        getAccounts,
+        addAccount,
+        updateAccount,
+        deleteAccount,
         getUserProfile,
         updateUserProfile
     }}>

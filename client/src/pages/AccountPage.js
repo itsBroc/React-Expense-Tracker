@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { GlobalContext } from '../context/GlobalState';
+import { formatCurrency, minorToMajor } from '../utils/finance';
 
 const defaultSettings = {
   baseCurrency: 'AUD',
@@ -10,10 +11,28 @@ const defaultSettings = {
   theme: 'system'
 };
 
+const initialAccount = {
+  name: '',
+  type: 'checking',
+  openingBalance: '',
+  notes: ''
+};
+
+const accountTypes = [
+  { value: 'checking', label: 'Checking' },
+  { value: 'savings', label: 'Savings' },
+  { value: 'credit_card', label: 'Credit card' },
+  { value: 'cash', label: 'Cash' },
+  { value: 'investment', label: 'Investment' },
+  { value: 'loan', label: 'Loan' },
+  { value: 'other', label: 'Other' }
+];
+
 export const AccountPage = () => {
   const { authError, configured, config, isAuthenticated, profile, signIn, signOut } = useAuth();
-  const { updateUserProfile, userProfile } = useContext(GlobalContext);
+  const { accounts, addAccount, deleteAccount, updateUserProfile, userProfile } = useContext(GlobalContext);
   const [settings, setSettings] = useState(defaultSettings);
+  const [accountForm, setAccountForm] = useState(initialAccount);
 
   useEffect(() => {
     if (!userProfile) {
@@ -36,6 +55,13 @@ export const AccountPage = () => {
     });
   };
 
+  const handleAccountChange = event => {
+    setAccountForm({
+      ...accountForm,
+      [event.target.name]: event.target.value
+    });
+  };
+
   const handleSubmit = event => {
     event.preventDefault();
 
@@ -44,6 +70,22 @@ export const AccountPage = () => {
       baseCurrency: settings.baseCurrency.toUpperCase(),
       monthStartDay: Number(settings.monthStartDay)
     });
+  };
+
+  const handleAccountSubmit = event => {
+    event.preventDefault();
+
+    if (!accountForm.name.trim()) {
+      return;
+    }
+
+    addAccount({
+      ...accountForm,
+      name: accountForm.name.trim(),
+      openingBalance: accountForm.openingBalance || '0',
+      currency: settings.baseCurrency
+    });
+    setAccountForm(initialAccount);
   };
 
   return (
@@ -145,6 +187,53 @@ export const AccountPage = () => {
           </div>
         </dl>
       </section>
+
+      <div className="management-layout account-management">
+        <form className="panel management-form" onSubmit={handleAccountSubmit}>
+          <div>
+            <h2>Add account</h2>
+            <p>Track cash, bank, credit, and investment balances separately.</p>
+          </div>
+          <div className="form-control">
+            <label htmlFor="account-name">Account name</label>
+            <input id="account-name" name="name" type="text" value={accountForm.name} onChange={handleAccountChange} placeholder="Everyday account"/>
+          </div>
+          <div className="form-row">
+            <div className="form-control">
+              <label htmlFor="account-type">Type</label>
+              <select id="account-type" name="type" value={accountForm.type} onChange={handleAccountChange}>
+                {accountTypes.map(type => <option key={type.value} value={type.value}>{type.label}</option>)}
+              </select>
+            </div>
+            <div className="form-control">
+              <label htmlFor="opening-balance">Opening balance</label>
+              <input id="opening-balance" name="openingBalance" type="number" step="0.01" value={accountForm.openingBalance} onChange={handleAccountChange} placeholder="0.00"/>
+            </div>
+          </div>
+          <div className="form-control">
+            <label htmlFor="account-notes">Notes</label>
+            <input id="account-notes" name="notes" type="text" value={accountForm.notes} onChange={handleAccountChange} placeholder="Optional account context"/>
+          </div>
+          <button className="btn">Create account</button>
+        </form>
+
+        <div className="account-list">
+          {accounts.length === 0 && <div className="panel empty-state">No accounts yet. Add your first account to start separating balances.</div>}
+          {accounts.map(account => (
+            <article className="panel account-card" key={account._id}>
+              <div>
+                <div className="card-kicker">{accountTypes.find(type => type.value === account.type)?.label || account.type}</div>
+                <h2>{account.name}</h2>
+                {account.notes && <p>{account.notes}</p>}
+              </div>
+              <strong>{formatCurrency(minorToMajor(account.currentBalanceMinor || 0))}</strong>
+              <div className="card-actions">
+                <button className="delete-btn inline-delete" onClick={() => deleteAccount(account._id)}>Delete</button>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
     </section>
   );
 };

@@ -1,5 +1,10 @@
 const AppReducer = (state, action) => {
   switch(action.type) {
+    case 'GET_ACCOUNTS':
+      return {
+        ...state,
+        accounts: action.payload
+      }
     case 'GET_TRANSACTIONS':
       return {
         ...state,
@@ -28,6 +33,24 @@ const AppReducer = (state, action) => {
         ...state,
         error: null,
         transactions: state.transactions.filter(transaction => transaction._id !== action.payload)
+      }
+    case 'ADD_ACCOUNT':
+      return {
+        ...state,
+        error: null,
+        accounts: [action.payload, ...state.accounts]
+      }
+    case 'UPDATE_ACCOUNT':
+      return {
+        ...state,
+        error: null,
+        accounts: state.accounts.map(account => account._id === action.payload._id ? action.payload : account)
+      }
+    case 'DELETE_ACCOUNT':
+      return {
+        ...state,
+        error: null,
+        accounts: state.accounts.filter(account => account._id !== action.payload)
       }
     case 'ADD_TRANSACTION':
       return {
@@ -72,6 +95,7 @@ const AppReducer = (state, action) => {
         budgets: state.budgets.filter(budget => budget._id !== action.payload)
       }
     case 'TRANSACTION_ERROR':
+    case 'ACCOUNT_ERROR':
     case 'GOAL_ERROR':
     case 'BUDGET_ERROR':
     case 'PROFILE_ERROR':
